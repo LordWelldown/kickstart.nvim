@@ -35,8 +35,8 @@ Kickstart Guide:
     for when you are first encountering a few different constructs in your Neovim config.
 --]]
 
-require 'lua.options'
-require 'lua.keymaps'
+require 'options'
+require 'keymaps'
 
 -- Set to true if you have a Nerd Font installed
 vim.g.have_nerd_font = true
