@@ -15,6 +15,7 @@ return { -- LSP Configuration & Plugins
     { 'folke/neodev.nvim', opts = {} },
   },
   config = function()
+    -- local homedir =
     vim.api.nvim_create_autocmd('LspAttach', {
       group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
       callback = function(event)
@@ -68,6 +69,8 @@ return { -- LSP Configuration & Plugins
         --  For example, in C this would take you to the header.
         map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
+        vim.keymap.set('i', '<C-h>', vim.lsp.buf.signature_help, { buffer = event.buf, desc = 'LSP: signature_help' })
+
         -- The following two autocommands are used to highlight references of the
         -- word under your cursor when your cursor rests there for a little while.
         --    See `:help CursorHold` for information about when this is executed
@@ -107,9 +110,27 @@ return { -- LSP Configuration & Plugins
     local servers = {
       -- clangd = {},
       gopls = {},
-      eslint = {},
+      eslint = {
+        root_dir = function(fname)
+          return require('lspconfig').util.find_git_ancestor(fname)
+        end,
+        cmd = {
+          'vscode-eslint-language-server',
+          '--stdio' --[[ '--stdin', '--stdin-filename', '%filepath' ]],
+        },
+        -- cmd = { 'eslint', '--stdin', '--stdin-filename', '%filepath' },
+        filetypes = { 'javascript' },
+        settings = {
+          debug = true,
+          rootMarkers = { '.git/' },
+          workingDirectory = { mode = 'auto' },
+        },
+        nodePath = '/home/erik/.local/share/nvim/mason/packages/eslint-lsp/node_modules/',
+        -- /home/erik/.local/share/nvim/mason/packages/eslint-lsp/node_modules/vscode-langservers-extracted/lib/eslint-language-server
+      },
+      html = {},
       -- pyright = {},
-      -- rust_analyzer = {},
+      rust_analyzer = {},
       -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
       --
       -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -148,6 +169,7 @@ return { -- LSP Configuration & Plugins
     local ensure_installed = vim.tbl_keys(servers or {})
     vim.list_extend(ensure_installed, {
       'stylua', -- Used to format Lua code
+      'gofumpt', -- go format
     })
     require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
