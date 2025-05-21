@@ -10,10 +10,25 @@ return {
     require('neo-tree').setup {
       filesystem = {
         hijack_netrw_behavior = 'open_current',
+        window = {
+          mappings = {
+            ['O'] = 'system_open',
+          },
+        },
+      },
+
+      commands = {
+        system_open = function(state)
+          local node = state.tree:get_node()
+          local path = node:get_id()
+          -- Linux: open file in default application
+          vim.fn.jobstart({ 'xdg-open', path }, { detach = true })
+        end,
       },
     }
+
     vim.keymap.set('n', '<C-n>', ':Neotree filesystem reveal left toggle=true<CR>', { desc = 'Toggle file system view' })
-    vim.keymap.set('n', '<leader><C-n', function()
+    vim.keymap.set('n', '<leader><C-n>', function()
       local reveal_file = vim.fn.expand '%:p'
       if reveal_file == '' then
         reveal_file = vim.fn.getcwd()
